@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
+const argon2 = require("argon2");
 
 const userSchema = new mongoose.Schema({
     firstName: {
@@ -10,6 +10,21 @@ const userSchema = new mongoose.Schema({
     lastName: {
         type: String,
         required: [true, "Please provide Your last name"],
+        trim: true,
+    },
+    gender: {
+        type: String,
+        required: [true, "Please provide Your gender"],
+        trim: true,
+    },
+    status: {
+        type: String,
+        required: [true, "Please provide Your marital status"],
+        trim: true,
+    },
+    dateOfBirth: {
+        type: String,
+        required: [true, "Please provide Your date of birth"],
         trim: true,
     },
     email: {
@@ -28,7 +43,6 @@ const userSchema = new mongoose.Schema({
     },
     phoneNumber: {
         type: String,
-        required: [true, "Please provide your phone number"],
     },
     role: {
         type: String,
@@ -45,12 +59,12 @@ const userSchema = new mongoose.Schema({
 
 userSchema.pre("save", async function (next) {
     if (!this.isModified("password")) return next();
-    this.password = await bcrypt.hash(this.password, 12);
+    this.password = await argon2.hash(this.password);
     next();
 });
 
 userSchema.methods.correctPassword = async function (candidatePassword, userPassword) {
-    return await bcrypt.compare(candidatePassword, userPassword);
+    return await argon2.verify(candidatePassword, userPassword);
 };
 
 const User = mongoose.model("User", userSchema);

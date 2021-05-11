@@ -89,5 +89,5 @@ mongoose
 
 //listening to port
 app.listen(port, () => {
-  console.log(`PMS Server is running on port ${port}`);
+  console.log(`EDEN Server is running on port ${port}`);
 });

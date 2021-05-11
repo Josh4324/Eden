@@ -1,12 +1,20 @@
 const express = require("express");
 const router = express.Router();
-const userController = require("../controller/user");
+const userController = require("../controllers/user");
 const multer = require("multer");
-const upload = multer({ dest: "uploads/" });    ``
+const validation = require("../middlewares/validation");
+const auth = require("../middlewares/authorization");
+const upload = multer({ dest: "uploads/" });
+const {Token} = require('../helpers');
+
+const token = new Token();
 
 
-router.post('/signup',  userController.signUp);
-router.post('/login', userController.logIn);
+
+router.post('/signup', validation.signUpValidationRules(), validation.validate, userController.signUp);
+router.post('/login', validation.loginValidationRules(), validation.validate, userController.logIn);
+router.patch('/', token.verifyToken, auth.authorization("user", "admin"),  userController.updateProfile);
+router.patch('/image', token.verifyToken,auth.authorization("user", "admin"), upload.single("image"), userController.imageUpload);
 
 
 module.exports = router;
