@@ -12,7 +12,7 @@ const token = new Token();
 
 
 router.post('/', token.verifyToken,  auth.authorization("user", "admin"), upload.single("image"), seriesController.createSeries);
-router.patch('/', token.verifyToken,  auth.authorization("user", "admin"), seriesController.updateSeries);
+router.patch('/:id', token.verifyToken,  auth.authorization("user", "admin"), seriesController.updateSeries);
 router.get('/:id', token.verifyToken,  auth.authorization("user", "admin"), seriesController.getOneSeries);
 router.get('/', token.verifyToken,  auth.authorization("user", "admin"), seriesController.getAllSeries);
 
