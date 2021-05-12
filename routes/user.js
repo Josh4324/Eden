@@ -14,7 +14,8 @@ const token = new Token();
 router.post('/signup', validation.signUpValidationRules(), validation.validate, userController.signUp);
 router.post('/login', validation.loginValidationRules(), validation.validate, userController.logIn);
 router.patch('/', token.verifyToken, auth.authorization("user", "admin"),  userController.updateProfile);
-router.patch('/image', token.verifyToken,auth.authorization("user", "admin"), upload.single("image"), userController.imageUpload);
+router.get('/', token.verifyToken, auth.authorization("user", "admin"),  userController.getProfileData);
+
 
 
 module.exports = router;

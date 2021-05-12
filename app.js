@@ -11,6 +11,8 @@ require("dotenv").config();
 
 
 const userRoutes = require("./routes/user");
+const messageRoutes = require("./routes/message");
+const seriesRoutes = require("./routes/series");
 
 
 // Port
@@ -59,6 +61,8 @@ app.use(hpp());
 
 //REGISTER ROUTES HERE
 app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/message", messageRoutes);
+app.use("/api/v1/series", seriesRoutes);
 
 
 app.get("/", (req, res) => {

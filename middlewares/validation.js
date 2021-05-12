@@ -26,6 +26,18 @@ exports.loginValidationRules = () => {
     ]
 }
 
+exports.messageValidationRules = () => {
+    return [
+        body("topic").notEmpty().trim().escape().withMessage("Please provide the topic"),
+        body("series").notEmpty().withMessage("Please provide the series"),
+        body("preacher").notEmpty().trim().escape().withMessage("Please provide the preacher name"),
+        body("summary").notEmpty().isAlpha().trim().escape().withMessage("Please provide the summary"),
+        body("audio").notEmpty().trim().escape().withMessage("Please provide the audio link"),
+        body("youtube").notEmpty().trim().escape().withMessage("Please provide the youtube link"),  
+    ]
+}
+
+
 exports.roleValidationRules = () => {
     return [
         body("role").notEmpty().isAlpha().trim().escape().withMessage("Please provide the role"),
@@ -43,7 +55,9 @@ exports.resetPasswordValidationRules = () => {
 
 exports.validate = (req, res, next) => {
     try {
+        
         const errors = validationResult(req)
+        
         if (errors.isEmpty()) {
             return next()
         }
