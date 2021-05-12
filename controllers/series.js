@@ -57,6 +57,7 @@ exports.updateSeries = async (req, res) => {
         res.status(response.code).json(response);
 
     }catch (err){
+        console.log(err);
         const response = new Response(
             false,
             500,

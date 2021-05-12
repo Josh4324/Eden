@@ -18,7 +18,7 @@ module.exports = class SeriesService {
     }  
 
     async updateSeries(id, payload){
-        return await Message.findByIdAndUpdate({_id:id}, payload, {
+        return await Series.findByIdAndUpdate({_id:id}, payload, {
             new: true,
         });
     }
