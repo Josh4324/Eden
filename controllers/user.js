@@ -69,6 +69,16 @@ exports.logIn = async (req, res) => {
         } = req.body
 
         const user = await userService.findUserWithEmailAndGetPassword(email);
+
+        if (!user){
+            const response = new Response(
+                false,
+                401,
+                "Incorrect email or password",
+              );
+           return res.status(response.code).json(response);
+        }
+
         const checkPassword = await user.correctPassword(user.password, password);
 
         if (!user || !(checkPassword)) {
@@ -77,7 +87,7 @@ exports.logIn = async (req, res) => {
                 401,
                 "Incorrect email or password",
               );
-            res.status(response.code).json(response);
+            return res.status(response.code).json(response);
         }
 
         const payload = {
