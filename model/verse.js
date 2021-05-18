@@ -4,17 +4,16 @@ const mongoose = require("mongoose");
 const verseSchema = new mongoose.Schema({
     title: {
         type: String,
+        required: [true, "Please provide the title of the verse"]
     },
     body: {
         type: String,
+        required: [true, "Please provide the body of the verse"]
     },
     date: {
         type: Date,
-    },
-    verseList: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Verse"
-    }]
+        default: Date.now()
+    }
 });
 
 

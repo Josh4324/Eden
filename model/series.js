@@ -14,7 +14,11 @@ const seriesSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: "Message"
         }
-    ]
+    ],
+    date: {
+        type: Date,
+        default: Date.now()
+    }
 });
 
 
