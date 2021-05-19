@@ -34,6 +34,7 @@ exports.createBlog = async (req, res) => {
         
         
     } catch (err) {
+        console.log(err);
         const response = new Response(
             false,
             500,
