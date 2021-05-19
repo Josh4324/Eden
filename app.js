@@ -18,6 +18,7 @@ const instagramRoutes = require("./routes/instagram");
 const verseRoutes = require("./routes/verse");
 const blogRoutes = require("./routes/blog");
 const homeGroupRoutes = require("./routes/homegroup");
+const dailyEdgeRoutes = require("./routes/dailyedge");
 
 // Port
 const port = process.env.PORT || 1000;
@@ -72,6 +73,7 @@ app.use("/api/v1/instagram", instagramRoutes);
 app.use("/api/v1/verse", verseRoutes);
 app.use("/api/v1/blog", blogRoutes);
 app.use("/api/v1/homegroup", homeGroupRoutes);
+app.use("/api/v1/dailyedge", dailyEdgeRoutes);
 
 
 app.get("/", (req, res) => {
