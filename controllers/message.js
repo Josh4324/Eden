@@ -88,8 +88,8 @@ exports.updateMessage = async (req, res) => {
 
 exports.getAllMessages = async (req, res) => {
     try {
-        let limit = req.query.limit;
-        let skip = req.query.skip
+        let limit = Number(req.query.limit);
+        let skip = Number(req.query.skip);
 
         if (!limit){
             limit = 10;

@@ -16,6 +16,8 @@ const seriesRoutes = require("./routes/series");
 const eventRoutes = require("./routes/event");
 const instagramRoutes = require("./routes/instagram");
 const verseRoutes = require("./routes/verse");
+const blogRoutes = require("./routes/blog");
+const homeGroupRoutes = require("./routes/homegroup");
 
 // Port
 const port = process.env.PORT || 1000;
@@ -68,6 +70,8 @@ app.use("/api/v1/series", seriesRoutes);
 app.use("/api/v1/event", eventRoutes);
 app.use("/api/v1/instagram", instagramRoutes);
 app.use("/api/v1/verse", verseRoutes);
+app.use("/api/v1/blog", blogRoutes);
+app.use("/api/v1/homegroup", homeGroupRoutes);
 
 
 app.get("/", (req, res) => {

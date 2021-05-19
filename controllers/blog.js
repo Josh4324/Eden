@@ -1,4 +1,4 @@
-const InstagramService = require("../services/instagram");
+const BlogService = require("../services/blog");
 const {Response} = require('../helpers');
 const cloudinary = require("cloudinary").v2;
 
@@ -8,10 +8,10 @@ cloudinary.config({
     api_secret: process.env.API_SECRET,
   });
 
-const instagramService = new InstagramService();
+const blogService = new BlogService();
 
 
-exports.createInstagram = async (req, res) => {
+exports.createBlog = async (req, res) => {
     try {
 
         cloudinary.uploader.upload(req.file.path, async (error, result) => {
@@ -19,13 +19,13 @@ exports.createInstagram = async (req, res) => {
                 let image = result.secure_url;
                 req.body.image = image;
                
-                const instagram = await instagramService.createInstagram(req.body);
+                const blog = await blogService.createBlog(req.body);
 
                 const response = new Response(
                     true,
                     201,
-                    "Instagram Post created successfully",
-                    instagram
+                    "Blog Post created successfully",
+                    blog
                     );
                     res.status(response.code).json(response);
                     }
@@ -44,16 +44,16 @@ exports.createInstagram = async (req, res) => {
     }
 }
 
-exports.updateInstagram = async (req, res) => {
+exports.updateBlog = async (req, res) => {
     try {
         const id = req.params.id;
-        const instagram = await instagramService.updateInstagram(id, req.body)
+        const blog = await blogService.updateBlog(id, req.body)
 
         const response = new Response(
             true,
             200,
-            "Instagram post updated successfully",
-            instagram
+            "Blog post updated successfully",
+            blog
           );
         res.status(response.code).json(response);
 
@@ -69,7 +69,7 @@ exports.updateInstagram = async (req, res) => {
     }
 }
 
-exports.getAllInstagram = async (req, res) => {
+exports.getAllBlog = async (req, res) => {
     try {
         let limit = Number(req.query.limit);
         let skip = Number(req.query.skip);
@@ -82,13 +82,13 @@ exports.getAllInstagram = async (req, res) => {
             skip = 0;
         }
 
-        const instagram = await instagramService.findAllInstagram(limit, skip);
+        const blog = await blogService.findAllBlog(limit, skip);
 
        const response = new Response(
             true,
             200,
             "Success",
-            instagram
+            blog
           );
         res.status(response.code).json(response);
         
@@ -104,17 +104,17 @@ exports.getAllInstagram = async (req, res) => {
     }
 }
 
-exports.getOneInstagram = async (req, res) => {
+exports.getOneBlog = async (req, res) => {
     try {
         let id = req.params.id;
        
-        const instagram = await instagramService.findInstagramWithId(id);
+        const blog = await blogService.findBlogWithId(id);
 
        const response = new Response(
             true,
             200,
             "Success",
-            instagram
+            blog
           );
         res.status(response.code).json(response);
         

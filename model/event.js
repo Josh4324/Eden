@@ -10,6 +10,10 @@ const eventSchema = new mongoose.Schema({
         type: Date,
         required: [true, "Please provide the date of the event"]
     },
+    date: {
+        type: Date,
+        default: Date.now()
+    }
 });
 
 

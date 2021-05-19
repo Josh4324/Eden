@@ -21,10 +21,10 @@ const dailyEdgeSchema = new mongoose.Schema({
     about: {
         type: String,
     },
-    dailyEdgeList: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "DailyEdge"
-    }]
+    date: {
+        type: Date,
+        default: Date.now()
+    }
 });
 
 

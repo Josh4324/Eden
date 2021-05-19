@@ -1,8 +1,8 @@
 const Event = require('../model/event');
 
 module.exports = class EventService {
-    async findAllEvent(){
-        return await Event.find({});
+    async findAllEvent(max, page){
+        return await Event.find({}).limit(max).skip(page).sort({date: -1});
     }
 
     async findEventWithId(id){

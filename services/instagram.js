@@ -1,8 +1,8 @@
 const Instagram = require('../model/instagram');
 
 module.exports = class InstagramService {
-    async findAllInstagram(){
-        return await Instagram.find({});
+    async findAllInstagram(max, page){
+        return await Instagram.find({}).limit(max).skip(page).sort({date: -1});
     }
 
     async findInstagramWithId(id){
