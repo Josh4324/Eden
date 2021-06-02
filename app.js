@@ -19,6 +19,7 @@ const verseRoutes = require("./routes/verse");
 const blogRoutes = require("./routes/blog");
 const homeGroupRoutes = require("./routes/homegroup");
 const dailyEdgeRoutes = require("./routes/dailyedge");
+const homeRoutes = require("./routes/home");
 
 // Port
 const port = process.env.PORT || 1000;
@@ -74,6 +75,7 @@ app.use("/api/v1/verse", verseRoutes);
 app.use("/api/v1/blog", blogRoutes);
 app.use("/api/v1/homegroup", homeGroupRoutes);
 app.use("/api/v1/dailyedge", dailyEdgeRoutes);
+app.use("/api/v1/home", homeRoutes)
 
 
 app.get("/", (req, res) => {
@@ -100,7 +102,10 @@ mongoose
     useFindAndModify: false,
   })
   .then(() => console.log("DATABASE connection successfull"))
-  .catch((err) => console.log("Error connecting to database"));
+  .catch((err) => {
+    console.log(err);
+    console.log("Error connecting to database");
+  });
 
 //listening to port
 app.listen(port, () => {

@@ -35,18 +35,21 @@ exports.signUp = async (req, res) => {
             role: newUser.role,
             email: newUser.email
         };
-        const newToken = await token.generateToken(payload);
+
+        const newToken = await token.generateToken(payload, process.env.JWT_SECRET, process.env.JWT_EXPIRES_IN);
+        const refreshToken = await token.generateToken(payload, process.env.REFRESH_JWT_SECRET, process.env.REFRESH_JWT_EXPIRES_IN);
         
         const data = {
             id: newUser._id,
             token: newToken,
+            refreshToken,
             role: newUser.role
         }
         const response = new Response(
             true,
             201,
             "User created successfully",
-            data
+            data,
           );
           res.status(response.code).json(response);
     } catch (err) {
@@ -94,11 +97,14 @@ exports.logIn = async (req, res) => {
             id: user._id,
             role: user.role
         };
-        const newToken = await token.generateToken(payload);
+
+        const newToken = await token.generateToken(payload, process.env.JWT_SECRET, process.env.JWT_EXPIRES_IN);
+        const refreshToken = await token.generateToken(payload, process.env.REFRESH_JWT_SECRET, process.env.REFRESH_JWT_EXPIRES_IN);
 
         const data = {
             id: user._id,
             token: newToken,
+            refreshToken,
             role: user.role
         }
         const response = new Response(
