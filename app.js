@@ -24,7 +24,7 @@ const homeRoutes = require("./routes/home");
 // Port
 const port = process.env.PORT || 1000;
 //connection url
-const DB = process.env.MONGOLAB_URI || "mongodb://localhost/eden";
+const DB = process.env.MONGOLAB_URI_PROD || "mongodb://localhost/eden";
 
 //HTTP headers
 app.use(helmet());

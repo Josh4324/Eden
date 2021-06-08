@@ -36,13 +36,11 @@ exports.signUp = async (req, res) => {
             email: newUser.email
         };
 
-        const newToken = await token.generateToken(payload, process.env.JWT_SECRET, process.env.JWT_EXPIRES_IN);
-        const refreshToken = await token.generateToken(payload, process.env.REFRESH_JWT_SECRET, process.env.REFRESH_JWT_EXPIRES_IN);
+        const newToken = await token.generateToken(payload, process.env.JWT_SECRET);
         
         const data = {
             id: newUser._id,
             token: newToken,
-            refreshToken,
             role: newUser.role
         }
         const response = new Response(
@@ -98,13 +96,11 @@ exports.logIn = async (req, res) => {
             role: user.role
         };
 
-        const newToken = await token.generateToken(payload, process.env.JWT_SECRET, process.env.JWT_EXPIRES_IN);
-        const refreshToken = await token.generateToken(payload, process.env.REFRESH_JWT_SECRET, process.env.REFRESH_JWT_EXPIRES_IN);
+        const newToken = await token.generateToken(payload, process.env.JWT_SECRET);
 
         const data = {
             id: user._id,
             token: newToken,
-            refreshToken,
             role: user.role
         }
         const response = new Response(

@@ -12,8 +12,8 @@ module.exports = class Token {
    * @return {string} token
    */
 
-async generateToken(payload, JWT_SECRET, JWT_EXPIRES_IN ){
-    return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN })
+async generateToken(payload, JWT_SECRET ){
+    return jwt.sign(payload, JWT_SECRET)
 }
 
 /**
