@@ -1,174 +1,230 @@
 const UserService = require("../services/user");
+const MailService = require("../services/mail");
 const cloudinary = require("cloudinary").v2;
-const {Response, Token } = require('../helpers');
-
+const { Response, Token } = require("../helpers");
+const { v4: uuidv4 } = require("uuid");
+const { userLogger } = require("../logger");
 
 cloudinary.config({
-    cloud_name: process.env.CLOUD_NAME,
-    api_key: process.env.API_KEY,
-    api_secret: process.env.API_SECRET,
-  });
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET,
+});
 
 const userService = new UserService();
-const token = new Token();
-
+const mailService = new MailService();
 
 exports.signUp = async (req, res) => {
-    try {
-        const {email} = req.body;
-        const user = await userService.findUserWithEmail(email);
-        if (user) {
-            const response = new Response(
-                true,
-                409,
-                "This user already exists",
-              );
-              res.status(response.code).json(response);
-        }
-
-        req.body.role = "user";
-       
-        const newUser = await userService.createUser(req.body);
-      
-        const payload = {
-            id: newUser._id,
-            role: newUser.role,
-            email: newUser.email
-        };
-
-        const newToken = await token.generateToken(payload, process.env.JWT_SECRET);
-        
-        const data = {
-            id: newUser._id,
-            token: newToken,
-            role: newUser.role
-        }
-        const response = new Response(
-            true,
-            201,
-            "User created successfully",
-            data,
-          );
-          res.status(response.code).json(response);
-    } catch (err) {
-        console.log(err);
-        const response = new Response(
-            false,
-            500,
-            "Server Error",
-            err
-          );
-          res.status(response.code).json(response);
+  try {
+    const { email, firstName } = req.body;
+    const isUserExist = await userService.isUserExist(email);
+    if (isUserExist) {
+      const response = new Response(true, 409, "This user already exists");
+      return res.status(response.code).json(response);
     }
-}
+    const verificationCode = uuidv4().slice(0, 5);
+    req.body.code = verificationCode;
+    const user = await userService.createUser(req.body);
+    const payload = {
+      id: user._id,
+      role: user.role,
+      email: user.email,
+    };
+    const token = await userService.generateToken(payload);
+    await mailService.sendSignupEmail(email, verificationCode, firstName);
+    await mailService.sendWelcomeEmail(email, firstName);
+    const response = new Response(true, 201, "User created successfully", {
+      user,
+      token,
+    });
+    userLogger.info("New user created");
+    return res.status(response.code).json(response);
+  } catch (err) {
+    const response = new Response(
+      false,
+      500,
+      "An error ocurred, please try again",
+      err
+    );
+    userLogger.error(`An error occured: ${err}`);
+    return res.status(response.code).json(response);
+  }
+};
 
 exports.logIn = async (req, res) => {
-    try {
-        const {
-            email,
-            password
-        } = req.body
-
-        const user = await userService.findUserWithEmailAndGetPassword(email);
-
-        if (!user){
-            const response = new Response(
-                false,
-                401,
-                "Incorrect email or password",
-              );
-           return res.status(response.code).json(response);
-        }
-
-        const checkPassword = await user.correctPassword(user.password, password);
-
-        if (!user || !(checkPassword)) {
-            const response = new Response(
-                false,
-                401,
-                "Incorrect email or password",
-              );
-            return res.status(response.code).json(response);
-        }
-
-        const payload = {
-            id: user._id,
-            role: user.role
-        };
-
-        const newToken = await token.generateToken(payload, process.env.JWT_SECRET);
-
-        const data = {
-            id: user._id,
-            token: newToken,
-            role: user.role
-        }
-        const response = new Response(
-            true,
-            200,
-            "User logged in Successfully",
-            data
-          );
-        res.status(response.code).json(response);
-
-    } catch (err) {
-        console.log(err)
-        const response = new Response(
-            false,
-            500,
-            "Server Error",
-            err
-          );
-        res.status(response.code).json(response);
+  try {
+    const { email, password } = req.body;
+    const user = await userService.isUserValid(email, password);
+    if (!user) {
+      const response = new Response(false, 401, "Incorrect email or password");
+      return res.status(response.code).json(response);
     }
-}
+    const payload = {
+      id: user._id,
+      role: user.role,
+      email: user.email,
+    };
+    const token = await userService.generateToken(payload);
+    const response = new Response(true, 200, "User logged in Successfully", {
+      user,
+      token,
+    });
+    userLogger.info("User Logged In");
+    return res.status(response.code).json(response);
+  } catch (err) {
+    const response = new Response(
+      false,
+      500,
+      "An error ocurred, please try again",
+      err
+    );
+    userLogger.error(`An error occured: ${err}`);
+    return res.status(response.code).json(response);
+  }
+};
 
-exports.updateProfile = async (req, res) => {
-    try {
-        const {id} = req.payload;
-        
-        const user = await userService.updateUser(id, req.body)
+exports.verifyEmail = async (req, res) => {
+  try {
+    const { email, code } = req.body;
 
-        const response = new Response(
-            true,
-            200,
-            "User profile updated successfully",
-            user
-          );
-        res.status(response.code).json(response);
+    const user = await userService.findUserWithEmail(email);
 
-    }catch (err){
-        const response = new Response(
-            false,
-            500,
-            "Server Error",
-            err
-          );
-        res.status(response.code).json(response);
+    if (!user) {
+      const response = new Response(true, 409, "This user does not exists");
+      return res.status(response.code).json(response);
     }
-}
 
-exports.getProfileData = async (req, res) => {
-    try {
-        const {id} = req.payload;
-
-        const user = await userService.findUserWithId(id);
-
-       const response = new Response(
-            true,
-            200,
-            "Success",
-            user
-          );
-        res.status(response.code).json(response);
-        
-    }catch(err){
-        const response = new Response(
-            false,
-            500,
-            "Server Error",
-            err
-          );
-        res.status(response.code).json(response);
+    if (user.code !== code) {
+      const response = new Response(true, 409, "Invalid token");
+      return res.status(response.code).json(response);
     }
-}
+
+    const updatePayload = {
+      tatus: true,
+    };
+
+    await userService.updateUserWithId(user._id, updatePayload);
+
+    const response = new Response(true, 200, "User Verified Successfully");
+    userLogger.info("User Verified");
+    return res.status(response.code).json(response);
+  } catch (err) {
+    const response = new Response(
+      false,
+      500,
+      "An error ocurred, please try again",
+      err
+    );
+    userLogger.error(`An error occured: ${err}`);
+    return res.status(response.code).json(response);
+  }
+};
+
+exports.updateUser = async (req, res) => {
+  try {
+    const { id } = req.payload;
+
+    const user = await userService.updateUserWithId(id, req.body);
+
+    const response = new Response(
+      true,
+      200,
+      "User profile updated successfully",
+      user
+    );
+    userLogger.info("User Data Updated");
+    return res.status(response.code).json(response);
+  } catch (err) {
+    const response = new Response(
+      false,
+      500,
+      "An error ocurred, please try again",
+      err
+    );
+    userLogger.error(`An error occured: ${err}`);
+    return res.status(response.code).json(response);
+  }
+};
+
+exports.socialAuth = async (req, res) => {
+  try {
+    const { email } = req.body;
+    let user = await userService.isUserExist(email);
+    if (!user) {
+      req.body.status = true;
+      user = await userService.createUser(req.body);
+    }
+    const payload = {
+      id: user._id,
+      role: user.role,
+      email: user.email,
+    };
+    const token = await userService.generateToken(payload);
+    const response = new Response(true, 200, "User logged in Successfully", {
+      user,
+      token,
+    });
+    userLogger.info("Social User Logged In");
+    return res.status(response.code).json(response);
+  } catch (err) {
+    const response = new Response(
+      false,
+      500,
+      "An error ocurred, please try again",
+      err
+    );
+    userLogger.error(`An error occured: ${err}`);
+    return res.status(response.code).json(response);
+  }
+};
+
+exports.getUserDetails = async (req, res) => {
+  try {
+    const { id } = req.payload;
+
+    const user = await userService.findUserWithId(id);
+
+    const response = new Response(true, 200, "Data fetched successfully", user);
+    userLogger.info("Data Fetched");
+    return res.status(response.code).json(response);
+  } catch (err) {
+    const response = new Response(
+      false,
+      500,
+      "An error ocurred, please try again",
+      err
+    );
+    userLogger.error(`An error occured: ${err}`);
+    return res.status(response.code).json(response);
+  }
+};
+
+exports.imageUpload = async (req, res) => {
+  try {
+    const { id } = req.payload;
+    cloudinary.uploader.upload(req.file.path, async (error, result) => {
+      if (result) {
+        let image = result.secure_url;
+        await userService.updateUserWithId(id, { image });
+
+        const response = new Response(
+          true,
+          200,
+          "Image uploaded successfully",
+          image
+        );
+        userLogger.info("User Image Updated");
+        return res.status(response.code).json(response);
+      }
+    });
+  } catch (err) {
+    const response = new Response(
+      false,
+      500,
+      "An error ocurred, please try again",
+      err
+    );
+    userLogger.error(`An error occured: ${err}`);
+    return res.status(response.code).json(response);
+  }
+};

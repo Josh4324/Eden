@@ -1,30 +1,63 @@
-const User = require('../model/user');
+const User = require("../model/user");
+const Token = require("../helpers/token");
+const token = new Token();
 
 module.exports = class UserService {
-    async findUserWithEmail(email){
-        return await User.findOne({email});
+  async isUserExist(email) {
+    const user = await User.findOne({
+      email,
+    });
+
+    return user;
+  }
+
+  async isUserValid(email, password) {
+    const user = await User.findOne({
+      email,
+    }).select("+password");
+
+    if (!user) {
+      return null;
     }
 
-    async findUserWithId(id){
-        return await User.findOne({_id: id});
+    const checkPassword = await user.correctPassword(user.password, password);
+
+    if (!user || !checkPassword) {
+      return null;
     }
 
-    async createUser(user){
-        return await User.create(user);
-    }  
+    return await User.findOne({ _id: user._id });
+  }
 
-    async findUserWithEmailAndGetPassword(email){
-        return await User.findOne({email}).select("+password");
-    }
+  async createUser(user) {
+    const newUser = await User.create(user);
+    return await User.findOne({ _id: newUser._id });
+  }
 
-    async findUserWithIdAndGetPassword(id){
-        return await User.findOne({_id: id}).select("+password");
-    }
+  async updateUserWithId(id, payload) {
+    return await User.findByIdAndUpdate(id, payload, {
+      new: true,
+    });
+  }
 
-    async updateUser(id, payload){
-        return await User.findByIdAndUpdate(id, payload, {
-            new: true,
-        });
-    }
-    
-}
+  async generateToken(user) {
+    const newToken = await token.generateToken(user);
+    return newToken;
+  }
+
+  async findUserWithEmail(email) {
+    return await User.findOne({ email }).select("+code");
+  }
+
+  async findUserWithId(id) {
+    return await User.findOne({ _id: id });
+  }
+
+  async findUserWithEmailAndGetPassword(email) {
+    return await User.findOne({ email }).select("+password");
+  }
+
+  async findUserWithIdAndGetPassword(id) {
+    return await User.findOne({ _id: id }).select("+password");
+  }
+};
