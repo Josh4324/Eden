@@ -49,6 +49,10 @@ module.exports = class UserService {
     return await User.findOne({ email }).select("+code");
   }
 
+  async findUserWithGoogleId(googleId) {
+    return await User.findOne({ googleId });
+  }
+
   async findUserWithId(id) {
     return await User.findOne({ _id: id });
   }

@@ -12,7 +12,6 @@ const userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: [true, "Please provide your email"],
     unique: true,
     lowercase: true,
     trim: true,
@@ -36,6 +35,9 @@ const userSchema = new mongoose.Schema({
   status: {
     type: Boolean,
     default: false,
+  },
+  googleId: {
+    type: String,
   },
   role: {
     type: String,

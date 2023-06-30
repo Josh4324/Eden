@@ -3,6 +3,8 @@ const app = express();
 const Middleware = require("./middlewares/common");
 const mongoose = require("mongoose");
 const swagger = require("./swagger");
+const passport = require("passport");
+const GoogleAuth = require("./middlewares/googleAuth");
 require("dotenv").config();
 
 const userRoutes = require("./routes/user");
@@ -15,6 +17,7 @@ const blogRoutes = require("./routes/blog");
 const homeGroupRoutes = require("./routes/homegroup");
 const dailyEdgeRoutes = require("./routes/dailyedge");
 const homeRoutes = require("./routes/home");
+const { redirect } = require("statuses");
 
 // Port
 const port = process.env.PORT || 1000;
@@ -22,6 +25,7 @@ const port = process.env.PORT || 1000;
 const DB = process.env.MONGOLAB_URI_PROD || "mongodb://localhost/eden";
 
 Middleware(app);
+GoogleAuth(app, passport);
 
 //REGISTER ROUTES HERE
 app.use("/api/v1/user", userRoutes);

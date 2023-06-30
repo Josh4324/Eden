@@ -99,30 +99,11 @@ router.post(
 
 /**
  * @openapi
- * '/api/v1/user/social':
- *  post:
+ * '/auth/google':
+ *  get:
  *     tags:
  *     - User
  *     summary: Social Authentication
- *     requestBody:
- *      content:
- *        application/json:
- *           schema:
- *            type: object
- *            required:
- *              - firstName
- *              - lastName
- *              - email
- *            properties:
- *              firstName:
- *                type: string
- *                default: johndoe
- *              lastName:
- *                type: string
- *                default: johndoe
- *              email:
- *                type: string
- *                default: johndoe@mail.com
  *     responses:
  *      201:
  *        description: Success
@@ -133,10 +114,8 @@ router.post(
  *      500:
  *        description: Server Error
  */
-router.post("/social", userController.signUp);
 
-router.post("/refresh-token", tokenController.refreshToken);
-
+//router.post("/refresh-token", tokenController.refreshToken);
 /**
  * @openapi
  * '/api/v1/user':
