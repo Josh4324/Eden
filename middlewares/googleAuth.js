@@ -29,9 +29,8 @@ module.exports = async function GoogleAuth(app, passport) {
   passport.use(
     new GoogleStrategy(
       {
-        clientID:
-          "361359368630-tv5jev84vb1h7ehgaa2mgupvj8dlccs9.apps.googleusercontent.com",
-        clientSecret: "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",
+        clientID: process.env.CLIENT_ID,
+        clientSecret: process.env.CLIENT_SECRET,
         callbackURL: "/auth/google/callback",
       },
       function (accessToken, refreshToken, profile, cb) {
