@@ -39,23 +39,6 @@ module.exports = async function GoogleAuth(app, passport) {
     )
   );
 
-  /**
-   * @openapi
-   * '/auth/google':
-   *  get:
-   *     tags:
-   *     - User
-   *     summary: Social Authentication
-   *     responses:
-   *      201:
-   *        description: Success
-   *      409:
-   *        description: Conflict
-   *      404:
-   *        description: Not Found
-   *      500:
-   *        description: Server Error
-   */
   app.get(
     "/auth/google",
     passport.authenticate("google", { scope: ["profile", "email"] })

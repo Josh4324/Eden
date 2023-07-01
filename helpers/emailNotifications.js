@@ -198,7 +198,7 @@ class EmailNotifications {
                               <table width="100%" border="0" cellspacing="0" cellpadding="0" role="presentation">
                                 <tr>
                                   <td align="center">
-                                    <a href=${code} class="f-fallback button button--green" target="_blank">Reset your password</a>
+                                    <a href="" class="f-fallback button button--green" target="_blank">${code}</a>
                                   </td>
                                 </tr>
                               </table>

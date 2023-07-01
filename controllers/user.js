@@ -228,3 +228,127 @@ exports.imageUpload = async (req, res) => {
     return res.status(response.code).json(response);
   }
 };
+
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await userService.isUserExist(email);
+    if (!user) {
+      const response = new Response(true, 409, "This user does not exists");
+      return res.status(response.code).json(response);
+    }
+
+    const code = uuidv4().slice(0, 5);
+    await userService.updateUserWithEmail(email, { code });
+    const parser = new UAParser(req.headers["user-agent"]);
+    const result = parser.getResult();
+
+    const browser = result.browser.name;
+    const os = result.os.name;
+
+    await mailService.sendResetEmail(email, user.name, code, browser, os);
+
+    const response = new Response(true, 200, "Email sent to mail");
+    return res.status(response.code).json(response);
+  } catch (err) {
+    console.log(err);
+    // redirect user to token invalid or expired page
+    const response = new Response(
+      false,
+      500,
+      "An error ocurred, please try again",
+      err
+    );
+    res.status(response.code).json(response);
+  }
+};
+
+exports.reset = async (req, res) => {
+  try {
+    const { password, confirmPassword, email, code } = req.body;
+
+    const user = await userService.isUserExist(email);
+
+    if (!user) {
+      const response = new Response(true, 409, "This user does not exists");
+      return res.status(response.code).json(response);
+    }
+
+    if (user.dataValues.code !== code) {
+      const response = new Response(
+        true,
+        409,
+        "Invalid code or code has expired"
+      );
+      return res.status(response.code).json(response);
+    }
+
+    if (password !== confirmPassword) {
+      const response = new Response(
+        false,
+        401,
+        "Password and confirmPassword to do match"
+      );
+      return res.status(response.code).json(response);
+    }
+
+    const pass = await argon2.hash(password);
+
+    await userService.updateUserWithEmail(email, { password: pass });
+
+    const parser = new UAParser(req.headers["user-agent"]);
+    const result = parser.getResult();
+
+    const browser = result.browser.name;
+    const os = result.os.name;
+
+    await mailService.sendPasswordSuccessEmail(email, user.name, browser, os);
+
+    const response = new Response(true, 200, "Password reset successful");
+    res.status(response.code).json(response);
+  } catch (err) {
+    console.log(err);
+    const response = new Response(
+      false,
+      500,
+      "An error ocurred, please try again",
+      err
+    );
+    res.status(response.code).json(response);
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+
+    const { id } = req.payload;
+
+    const user = await userService.findUserWithPasswordWithId(id);
+
+    const userPassword = user.password;
+    const checkPassword = await argon2.verify(userPassword, oldPassword);
+
+    if (!user || !checkPassword) {
+      const response = new Response(false, 401, "Incorrect email or password");
+      return res.status(response.code).json(response);
+    }
+
+    const password = await argon2.hash(newPassword);
+
+    await userService.updateUserWithId(id, { password });
+
+    const response = new Response(true, 200, "Password reset successful");
+    res.status(response.code).json(response);
+  } catch (err) {
+    console.log(err);
+    const response = new Response(
+      false,
+      500,
+      "An error ocurred, please try again",
+      err
+    );
+    res.status(response.code).json(response);
+  }
+};
