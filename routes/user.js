@@ -223,4 +223,11 @@ router.post(
   userController.verifyEmail
 );
 
+router.post(
+  "/reset",
+  validation.resetValidationRules(),
+  validation.validate,
+  userController.reset
+);
+
 module.exports = router;
