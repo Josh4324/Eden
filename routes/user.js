@@ -230,4 +230,6 @@ router.post(
   userController.reset
 );
 
+router.post("/forgot", userController.forgotPassword);
+
 module.exports = router;
