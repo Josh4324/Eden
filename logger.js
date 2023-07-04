@@ -19,6 +19,21 @@ const userLogger = createLogger({
   ],
 });
 
+const postLogger = createLogger({
+  levels: config.syslog.levels,
+  format: combine(
+    timestamp({
+      format: "YYYY-MM-DD HH:mm:ss",
+    }),
+    json()
+  ),
+  transports: [
+    new transports.Console({ level: "error" }),
+    new transports.File({ filename: "logs/post.log", level: "info" }),
+  ],
+});
+
 module.exports = {
   userLogger,
+  postLogger,
 };

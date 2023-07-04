@@ -112,6 +112,49 @@ exports.resetPasswordValidationRules = () => {
   ];
 };
 
+exports.passwordValidationRules = () => {
+  return [
+    // username must be an email
+    body("oldPassword").notEmpty().withMessage("Property name  is required"),
+    body("newPassword")
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+        "i"
+      )
+      .withMessage(
+        "Password should be Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character"
+      ),
+  ];
+};
+
+exports.resetValidationRules = () => {
+  return [
+    // username must be an email
+    body("password")
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+        "i"
+      )
+      .withMessage(
+        "Password should be Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character"
+      ),
+    body("confirmPassword")
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+        "i"
+      )
+      .withMessage(
+        "Password should be Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character"
+      ),
+    body("email")
+      .notEmpty()
+      .isEmail()
+      .normalizeEmail()
+      .withMessage("Email is required"),
+    body("code").notEmpty().withMessage("Code is required"),
+  ];
+};
+
 exports.validate = (req, res, next) => {
   try {
     const errors = validationResult(req);

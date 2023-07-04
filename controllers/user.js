@@ -2,6 +2,8 @@ const UserService = require("../services/user");
 const MailService = require("../services/mail");
 const cloudinary = require("cloudinary").v2;
 const { Response, Token } = require("../helpers");
+const UAParser = require("ua-parser-js");
+const argon2 = require("argon2");
 const { v4: uuidv4 } = require("uuid");
 const { userLogger } = require("../logger");
 
@@ -100,7 +102,7 @@ exports.verifyEmail = async (req, res) => {
     }
 
     const updatePayload = {
-      tatus: true,
+      status: true,
     };
 
     await userService.updateUserWithId(user._id, updatePayload);
@@ -247,7 +249,7 @@ exports.forgotPassword = async (req, res) => {
     const browser = result.browser.name;
     const os = result.os.name;
 
-    await mailService.sendResetEmail(email, user.name, code, browser, os);
+    await mailService.sendResetEmail(email, user.firstName, code, browser, os);
 
     const response = new Response(true, 200, "Email sent to mail");
     return res.status(response.code).json(response);
@@ -264,18 +266,55 @@ exports.forgotPassword = async (req, res) => {
   }
 };
 
-exports.reset = async (req, res) => {
+exports.confirmOTP = async (req, res) => {
   try {
-    const { password, confirmPassword, email, code } = req.body;
+    const { email, code } = req.body;
 
-    const user = await userService.isUserExist(email);
+    const user = await userService.findUserWithEmail(email);
 
     if (!user) {
       const response = new Response(true, 409, "This user does not exists");
       return res.status(response.code).json(response);
     }
 
-    if (user.dataValues.code !== code) {
+    if (user.code !== code) {
+      const response = new Response(true, 409, "Invalid token");
+      return res.status(response.code).json(response);
+    }
+
+    const updatePayload = {
+      status: true,
+    };
+
+    await userService.updateUserWithId(user._id, updatePayload);
+
+    const response = new Response(true, 200, "OTP confirmed Successfully");
+    userLogger.info("User Verified");
+    return res.status(response.code).json(response);
+  } catch (err) {
+    const response = new Response(
+      false,
+      500,
+      "An error ocurred, please try again",
+      err
+    );
+    userLogger.error(`An error occured: ${err}`);
+    return res.status(response.code).json(response);
+  }
+};
+
+exports.reset = async (req, res) => {
+  try {
+    const { password, confirmPassword, email, code } = req.body;
+
+    const user = await userService.findUserWithEmail(email);
+
+    if (!user) {
+      const response = new Response(true, 409, "This user does not exists");
+      return res.status(response.code).json(response);
+    }
+
+    if (user.code !== code) {
       const response = new Response(
         true,
         409,
@@ -303,7 +342,12 @@ exports.reset = async (req, res) => {
     const browser = result.browser.name;
     const os = result.os.name;
 
-    await mailService.sendPasswordSuccessEmail(email, user.name, browser, os);
+    await mailService.sendPasswordSuccessEmail(
+      email,
+      user.firstName,
+      browser,
+      os
+    );
 
     const response = new Response(true, 200, "Password reset successful");
     res.status(response.code).json(response);
@@ -325,13 +369,13 @@ exports.resetPassword = async (req, res) => {
 
     const { id } = req.payload;
 
-    const user = await userService.findUserWithPasswordWithId(id);
+    const user = await userService.findUserWithIdAndGetPassword(id);
 
     const userPassword = user.password;
     const checkPassword = await argon2.verify(userPassword, oldPassword);
 
     if (!user || !checkPassword) {
-      const response = new Response(false, 401, "Incorrect email or password");
+      const response = new Response(false, 401, "Incorrect password");
       return res.status(response.code).json(response);
     }
 

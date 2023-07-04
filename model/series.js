@@ -1,26 +1,25 @@
 const mongoose = require("mongoose");
 
-
 const seriesSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: [true, "Please provide the name of the series"]
+  name: {
+    type: String,
+    required: [true, "Please provide the name of the series"],
+  },
+  image: {
+    type: String,
+    required: [true, "Please provide the image"],
+  },
+  messages: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Message",
     },
-    image: {
-        type: String,
-        required: [true, "Please provide the image"]
-    },
-    messages: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Message"
-        }
-    ],
-    date: {
-        type: Date,
-        default: Date.now()
-    }
+  ],
+  date: {
+    type: Date,
+    default: new Date(),
+  },
 });
-
 
 const Series = mongoose.model("Series", seriesSchema);
 

@@ -40,6 +40,12 @@ module.exports = class UserService {
     });
   }
 
+  async updateUserWithEmail(email, payload) {
+    return await User.findOneAndUpdate(email, payload, {
+      new: true,
+    });
+  }
+
   async generateToken(user) {
     const newToken = await token.generateToken(user);
     return newToken;

@@ -1,138 +1,101 @@
 const SeriesService = require("../services/series");
 const cloudinary = require("cloudinary").v2;
-const {Response} = require('../helpers');
+const { Response } = require("../helpers");
+const { postLogger } = require("../logger");
 
 cloudinary.config({
-    cloud_name: process.env.CLOUD_NAME,
-    api_key: process.env.API_KEY,
-    api_secret: process.env.API_SECRET,
-  });
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET,
+});
 
 const seriesService = new SeriesService();
 
-
 exports.createSeries = async (req, res) => {
-    try {
-        
-        cloudinary.uploader.upload(req.file.path, async (error, result) => {
-            if (result) {
-                let image = result.secure_url;
-                req.body.image = image;
+  try {
+    cloudinary.uploader.upload(req.file.path, async (error, result) => {
+      if (result) {
+        let image = result.secure_url;
+        req.body.image = image;
 
-                const series = await seriesService.createSeries(req.body);
+        const series = await seriesService.createSeries(req.body);
 
-                const response = new Response(
-                    true,
-                    201,
-                    "Series created successfully",
-                    series
-                  );
-                  res.status(response.code).json(response);
-            }
-        });
-        
-    } catch (err) {
-        console.log(err);
         const response = new Response(
-            false,
-            500,
-            "Server Error",
-            err
-          );
-          res.status(response.code).json(response);
-    }
-}
+          true,
+          201,
+          "Series created successfully",
+          series
+        );
+        res.status(response.code).json(response);
+      }
+    });
+  } catch (err) {
+    console.log(err);
+    const response = new Response(false, 500, "Server Error", err);
+    res.status(response.code).json(response);
+  }
+};
 
 exports.updateSeries = async (req, res) => {
-    try {
-        const id = req.params.id;
-        const series = await seriesService.updateSeries(id, req.body)
+  try {
+    const id = req.params.id;
+    const series = await seriesService.updateSeries(id, req.body);
 
-        const response = new Response(
-            true,
-            200,
-            "Series updated successfully",
-            series
-          );
-        res.status(response.code).json(response);
-
-    }catch (err){
-        console.log(err);
-        const response = new Response(
-            false,
-            500,
-            "Server Error",
-            err
-          );
-        res.status(response.code).json(response);
-    }
-}
+    const response = new Response(
+      true,
+      200,
+      "Series updated successfully",
+      series
+    );
+    res.status(response.code).json(response);
+  } catch (err) {
+    console.log(err);
+    const response = new Response(false, 500, "Server Error", err);
+    res.status(response.code).json(response);
+  }
+};
 
 exports.getAllSeries = async (req, res) => {
-    try {
-        let limit = Number(req.query.limit);
-        let skip = Number(req.query.skip);
-        let name = req.query.name;
+  try {
+    let limit = Number(req.query.limit);
+    let skip = Number(req.query.skip);
+    let name = req.query.name;
 
-        if (!limit){
-            limit = 10;
-        }
-
-        if (!skip){
-            skip = 0;
-        }
-
-        let series;
-      
-
-        if (name !== undefined){
-            series = await seriesService.findAllSeriesWithName(name,limit, skip);
-            
-        }else {
-            series = await seriesService.findAllSeries(limit, skip);
-        }
-
-       const response = new Response(
-            true,
-            200,
-            "Success",
-            series
-          );
-        res.status(response.code).json(response);
-        
-    }catch(err){
-        console.log(err)
-        const response = new Response(
-            false,
-            500,
-            "Server Error",
-            err
-          );
-        res.status(response.code).json(response);
+    if (!limit) {
+      limit = 10;
     }
-}
+
+    if (!skip) {
+      skip = 0;
+    }
+
+    let series;
+
+    if (name !== undefined) {
+      series = await seriesService.findAllSeriesWithName(name, limit, skip);
+    } else {
+      series = await seriesService.findAllSeries(limit, skip);
+    }
+
+    const response = new Response(true, 200, "Success", series);
+    res.status(response.code).json(response);
+  } catch (err) {
+    console.log(err);
+    const response = new Response(false, 500, "Server Error", err);
+    res.status(response.code).json(response);
+  }
+};
 
 exports.getOneSeries = async (req, res) => {
-    try {
-        let id = req.params.id;
-       
-        const series = await seriesService.findSeriesWithId(id);
+  try {
+    let id = req.params.id;
 
-       const response = new Response(
-            true,
-            200,
-            "Success",
-            series
-          );
-        res.status(response.code).json(response);
-        
-    }catch(err){
-        const response = new Response(
-            false,
-            500,
-            "Server Error",
-            err
-          );
-        res.status(response.code).json(response);
-    }
-}
+    const series = await seriesService.findSeriesWithId(id);
+
+    const response = new Response(true, 200, "Success", series);
+    res.status(response.code).json(response);
+  } catch (err) {
+    const response = new Response(false, 500, "Server Error", err);
+    res.status(response.code).json(response);
+  }
+};
