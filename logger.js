@@ -61,9 +61,39 @@ const messageLogger = createLogger({
   ],
 });
 
+const commitmentLogger = createLogger({
+  levels: config.syslog.levels,
+  format: combine(
+    timestamp({
+      format: "YYYY-MM-DD HH:mm:ss",
+    }),
+    json()
+  ),
+  transports: [
+    new transports.Console({ level: "error" }),
+    new transports.File({ filename: "logs/commit.log", level: "info" }),
+  ],
+});
+
+const requestLogger = createLogger({
+  levels: config.syslog.levels,
+  format: combine(
+    timestamp({
+      format: "YYYY-MM-DD HH:mm:ss",
+    }),
+    json()
+  ),
+  transports: [
+    new transports.Console({ level: "error" }),
+    new transports.File({ filename: "logs/request.log", level: "info" }),
+  ],
+});
+
 module.exports = {
   userLogger,
   postLogger,
   seriesLogger,
   messageLogger,
+  commitmentLogger,
+  requestLogger,
 };

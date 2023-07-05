@@ -39,7 +39,7 @@ exports.signUp = async (req, res) => {
       user,
       token,
     });
-    userLogger.info("New user created");
+    userLogger.info(`New user created - ${user._id}`);
     return res.status(response.code).json(response);
   } catch (err) {
     const response = new Response(
@@ -71,7 +71,7 @@ exports.logIn = async (req, res) => {
       user,
       token,
     });
-    userLogger.info("User Logged In");
+    userLogger.info(`User Logged In - ${user._id}`);
     return res.status(response.code).json(response);
   } catch (err) {
     const response = new Response(
@@ -108,7 +108,7 @@ exports.verifyEmail = async (req, res) => {
     await userService.updateUserWithId(user._id, updatePayload);
 
     const response = new Response(true, 200, "User Verified Successfully");
-    userLogger.info("User Verified");
+    userLogger.info(`User Verified - ${user._id}`);
     return res.status(response.code).json(response);
   } catch (err) {
     const response = new Response(
@@ -123,9 +123,8 @@ exports.verifyEmail = async (req, res) => {
 };
 
 exports.updateUser = async (req, res) => {
+  const { id } = req.payload;
   try {
-    const { id } = req.payload;
-
     const user = await userService.updateUserWithId(id, req.body);
 
     const response = new Response(
@@ -134,7 +133,7 @@ exports.updateUser = async (req, res) => {
       "User profile updated successfully",
       user
     );
-    userLogger.info("User Data Updated");
+    userLogger.info(`User Data Updated - ${id}`);
     return res.status(response.code).json(response);
   } catch (err) {
     const response = new Response(
@@ -143,7 +142,7 @@ exports.updateUser = async (req, res) => {
       "An error ocurred, please try again",
       err
     );
-    userLogger.error(`An error occured: ${err}`);
+    userLogger.error(`An error occured: ${err} - ${id}`);
     return res.status(response.code).json(response);
   }
 };
@@ -181,13 +180,12 @@ exports.socialAuth = async (req, res) => {
 };
 
 exports.getUserDetails = async (req, res) => {
+  const { id } = req.payload;
   try {
-    const { id } = req.payload;
-
     const user = await userService.findUserWithId(id);
 
     const response = new Response(true, 200, "Data fetched successfully", user);
-    userLogger.info("Data Fetched");
+    userLogger.info(`Data Fetched - ${id}`);
     return res.status(response.code).json(response);
   } catch (err) {
     const response = new Response(
@@ -196,14 +194,14 @@ exports.getUserDetails = async (req, res) => {
       "An error ocurred, please try again",
       err
     );
-    userLogger.error(`An error occured: ${err}`);
+    userLogger.error(`An error occured: ${err} - ${id}`);
     return res.status(response.code).json(response);
   }
 };
 
 exports.imageUpload = async (req, res) => {
+  const { id } = req.payload;
   try {
-    const { id } = req.payload;
     cloudinary.uploader.upload(req.file.path, async (error, result) => {
       if (result) {
         let image = result.secure_url;
@@ -215,7 +213,7 @@ exports.imageUpload = async (req, res) => {
           "Image uploaded successfully",
           image
         );
-        userLogger.info("User Image Updated");
+        userLogger.info(`User Image Updated - ${id}`);
         return res.status(response.code).json(response);
       }
     });
@@ -226,7 +224,7 @@ exports.imageUpload = async (req, res) => {
       "An error ocurred, please try again",
       err
     );
-    userLogger.error(`An error occured: ${err}`);
+    userLogger.error(`An error occured: ${err} - ${id}`);
     return res.status(response.code).json(response);
   }
 };
@@ -252,6 +250,7 @@ exports.forgotPassword = async (req, res) => {
     await mailService.sendResetEmail(email, user.firstName, code, browser, os);
 
     const response = new Response(true, 200, "Email sent to mail");
+    userLogger.info(`User Forget Password - ${user._id}`);
     return res.status(response.code).json(response);
   } catch (err) {
     console.log(err);
@@ -289,7 +288,7 @@ exports.confirmOTP = async (req, res) => {
     await userService.updateUserWithId(user._id, updatePayload);
 
     const response = new Response(true, 200, "OTP confirmed Successfully");
-    userLogger.info("User Verified");
+    userLogger.info(`User Confirmed OTP - ${user._id}`);
     return res.status(response.code).json(response);
   } catch (err) {
     const response = new Response(
@@ -350,7 +349,8 @@ exports.reset = async (req, res) => {
     );
 
     const response = new Response(true, 200, "Password reset successful");
-    res.status(response.code).json(response);
+    userLogger.info(`User reset password without Auth - ${id}`);
+    return res.status(response.code).json(response);
   } catch (err) {
     console.log(err);
     const response = new Response(
@@ -359,7 +359,7 @@ exports.reset = async (req, res) => {
       "An error ocurred, please try again",
       err
     );
-    res.status(response.code).json(response);
+    return res.status(response.code).json(response);
   }
 };
 
@@ -384,6 +384,7 @@ exports.resetPassword = async (req, res) => {
     await userService.updateUserWithId(id, { password });
 
     const response = new Response(true, 200, "Password reset successful");
+    userLogger.info(`User reset password with auth - ${id}`);
     res.status(response.code).json(response);
   } catch (err) {
     console.log(err);
@@ -393,6 +394,7 @@ exports.resetPassword = async (req, res) => {
       "An error ocurred, please try again",
       err
     );
-    res.status(response.code).json(response);
+    userLogger.error(`An error occured: ${err} - ${id}`);
+    return res.status(response.code).json(response);
   }
 };

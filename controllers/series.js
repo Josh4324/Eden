@@ -39,8 +39,8 @@ exports.createSeries = async (req, res) => {
 exports.updateSeries = async (req, res) => {
   const { id } = req.payload;
   try {
-    const id = req.params.id;
-    const series = await seriesService.updateSeries(id, req.body);
+    const pid = req.params.id;
+    const series = await seriesService.updateSeries(pid, req.body);
 
     const response = new Response(
       true,
@@ -94,8 +94,8 @@ exports.getAllSeries = async (req, res) => {
 exports.getOneSeries = async (req, res) => {
   const { id } = req.payload;
   try {
-    let id = req.params.id;
-    const series = await seriesService.findSeriesWithId(id);
+    let pid = req.params.id;
+    const series = await seriesService.findSeriesWithId(pid);
     const response = new Response(true, 200, "Success", series);
     seriesLogger.info(`Get one series - ${id}`);
     return res.status(response.code).json(response);

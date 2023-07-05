@@ -57,9 +57,9 @@ exports.createMessage = async (req, res) => {
 exports.updateMessage = async (req, res) => {
   const { id } = req.payload;
   try {
-    const id = req.params.id;
+    const pid = req.params.id;
 
-    const message = await messageService.updateMessage(id, req.body);
+    const message = await messageService.updateMessage(pid, req.body);
 
     const response = new Response(
       true,
@@ -115,9 +115,9 @@ exports.getAllMessages = async (req, res) => {
 exports.getOneMessage = async (req, res) => {
   const { id } = req.payload;
   try {
-    let id = req.params.id;
+    let pid = req.params.id;
 
-    const message = await messageService.findMessageWithId(id);
+    const message = await messageService.findMessageWithId(pid);
     const response = new Response(true, 200, "Success", message);
     messageLogger.info(`Get One message - ${id}`);
     return res.status(response.code).json(response);

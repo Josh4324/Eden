@@ -12,6 +12,7 @@ cloudinary.config({
 const postService = new PostService();
 
 exports.createPost = async (req, res) => {
+  const { id } = req.payload;
   try {
     cloudinary.uploader.upload(req.file.path, async (error, result) => {
       if (result) {
@@ -24,34 +25,36 @@ exports.createPost = async (req, res) => {
           "Post created successfully",
           post
         );
-        postLogger.info("New post created");
+        postLogger.info(`New post created - ${id}`);
         return res.status(response.code).json(response);
       }
     });
   } catch (err) {
     const response = new Response(false, 500, "Server Error", err);
-    postLogger.error(`An error occured: ${err}`);
+    postLogger.error(`An error occured: ${err} - ${id}`);
     return res.status(response.code).json(response);
   }
 };
 
 exports.updatePost = async (req, res) => {
+  const { id } = req.payload;
   try {
-    const id = req.params.id;
+    const pid = req.params.id;
 
-    const post = await postService.updatePost(id, req.body);
+    const post = await postService.updatePost(pid, req.body);
 
     const response = new Response(true, 200, "Post updated successfully", post);
-    postLogger.info("Post Updated");
+    postLogger.info(`Post Updated - ${id}`);
     return res.status(response.code).json(response);
   } catch (err) {
     const response = new Response(false, 500, "Server Error", err);
-    postLogger.error(`An error occured: ${err}`);
+    postLogger.error(`An error occured: ${err} - ${id}`);
     return res.status(response.code).json(response);
   }
 };
 
 exports.updatePostImage = async (req, res) => {
+  const { id } = req.payload;
   try {
     const id = req.params.id;
     cloudinary.uploader.upload(req.file.path, async (error, result) => {
@@ -65,18 +68,19 @@ exports.updatePostImage = async (req, res) => {
           "Post created successfully",
           post
         );
-        postLogger.info("Post Updated");
+        postLogger.info(`Post Updated - ${id}`);
         return res.status(response.code).json(response);
       }
     });
   } catch (err) {
     const response = new Response(false, 500, "Server Error", err);
-    postLogger.error(`An error occured: ${err}`);
+    postLogger.error(`An error occured: ${err} - ${id}`);
     return res.status(response.code).json(response);
   }
 };
 
 exports.getAllPost = async (req, res) => {
+  const { id } = req.payload;
   try {
     const page = Number(req.query.page) || 1;
     const num = Number(req.query.limit) || 10;
@@ -95,25 +99,26 @@ exports.getAllPost = async (req, res) => {
 
     const posts = await postService.findAllPost(limit, offset, category);
     const response = new Response(true, 200, "Success", posts);
-    postLogger.info("GET all post");
+    postLogger.info(`Get all posts - ${id}`);
     return res.status(response.code).json(response);
   } catch (err) {
     const response = new Response(false, 500, "Server Error", err);
-    postLogger.error(`An error occured: ${err}`);
+    postLogger.error(`An error occured: ${err} - ${id}`);
     return res.status(response.code).json(response);
   }
 };
 
 exports.getOnePost = async (req, res) => {
+  const { id } = req.payload;
   try {
-    let id = req.params.id;
-    const post = await postService.findPostWithId(id);
+    let pid = req.params.id;
+    const post = await postService.findPostWithId(pid);
     const response = new Response(true, 200, "Success", post);
-    postLogger.info("GET one post");
+    postLogger.info(`Get One post - ${id}`);
     return res.status(response.code).json(response);
   } catch (err) {
     const response = new Response(false, 500, "Server Error", err);
-    postLogger.error(`An error occured: ${err}`);
+    postLogger.error(`An error occured: ${err} - ${id}`);
     return res.status(response.code).json(response);
   }
 };
