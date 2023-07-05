@@ -1,7 +1,7 @@
 const SeriesService = require("../services/series");
 const cloudinary = require("cloudinary").v2;
 const { Response } = require("../helpers");
-const { postLogger } = require("../logger");
+const { seriesLogger } = require("../logger");
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -12,31 +12,32 @@ cloudinary.config({
 const seriesService = new SeriesService();
 
 exports.createSeries = async (req, res) => {
+  const { id } = req.payload;
   try {
     cloudinary.uploader.upload(req.file.path, async (error, result) => {
       if (result) {
         let image = result.secure_url;
         req.body.image = image;
-
         const series = await seriesService.createSeries(req.body);
-
         const response = new Response(
           true,
           201,
           "Series created successfully",
           series
         );
-        res.status(response.code).json(response);
+        seriesLogger.info(`New series created by ${id}`);
+        return res.status(response.code).json(response);
       }
     });
   } catch (err) {
-    console.log(err);
     const response = new Response(false, 500, "Server Error", err);
+    seriesLogger.error(`An error occured: ${err} - ${id}`);
     res.status(response.code).json(response);
   }
 };
 
 exports.updateSeries = async (req, res) => {
+  const { id } = req.payload;
   try {
     const id = req.params.id;
     const series = await seriesService.updateSeries(id, req.body);
@@ -47,55 +48,60 @@ exports.updateSeries = async (req, res) => {
       "Series updated successfully",
       series
     );
-    res.status(response.code).json(response);
+    seriesLogger.info(`Series Updated by ${id}`);
+    return res.status(response.code).json(response);
   } catch (err) {
-    console.log(err);
     const response = new Response(false, 500, "Server Error", err);
-    res.status(response.code).json(response);
+    seriesLogger.error(`An error occured: ${err} - ${id}`);
+    return res.status(response.code).json(response);
   }
 };
 
 exports.getAllSeries = async (req, res) => {
+  const { id } = req.payload;
   try {
-    let limit = Number(req.query.limit);
-    let skip = Number(req.query.skip);
+    const page = Number(req.query.page) || 1;
+    const num = Number(req.query.limit) || 10;
     let name = req.query.name;
 
-    if (!limit) {
-      limit = 10;
-    }
+    let offset;
+    let limit;
 
-    if (!skip) {
-      skip = 0;
-    }
-
-    let series;
-
-    if (name !== undefined) {
-      series = await seriesService.findAllSeriesWithName(name, limit, skip);
+    if (page === 1 || page === 0 || !page) {
+      offset = 0;
+      limit = num;
     } else {
-      series = await seriesService.findAllSeries(limit, skip);
+      offset = (page - 1) * num;
+      limit = num;
     }
+
+    const series = await seriesService.findAllSeriesWithName(
+      limit,
+      offset,
+      name
+    );
 
     const response = new Response(true, 200, "Success", series);
-    res.status(response.code).json(response);
+    seriesLogger.info(`Get all series by ${id}`);
+    return res.status(response.code).json(response);
   } catch (err) {
-    console.log(err);
+    seriesLogger.error(`An error occured: ${err} - ${id}`);
     const response = new Response(false, 500, "Server Error", err);
     res.status(response.code).json(response);
   }
 };
 
 exports.getOneSeries = async (req, res) => {
+  const { id } = req.payload;
   try {
     let id = req.params.id;
-
     const series = await seriesService.findSeriesWithId(id);
-
     const response = new Response(true, 200, "Success", series);
-    res.status(response.code).json(response);
+    seriesLogger.info(`Get one series - ${id}`);
+    return res.status(response.code).json(response);
   } catch (err) {
     const response = new Response(false, 500, "Server Error", err);
-    res.status(response.code).json(response);
+    seriesLogger.error(`An error occured: ${err} - ${id}`);
+    return res.status(response.code).json(response);
   }
 };

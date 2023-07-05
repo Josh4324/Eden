@@ -33,7 +33,22 @@ const postLogger = createLogger({
   ],
 });
 
+const seriesLogger = createLogger({
+  levels: config.syslog.levels,
+  format: combine(
+    timestamp({
+      format: "YYYY-MM-DD HH:mm:ss",
+    }),
+    json()
+  ),
+  transports: [
+    new transports.Console({ level: "error" }),
+    new transports.File({ filename: "logs/series.log", level: "info" }),
+  ],
+});
+
 module.exports = {
   userLogger,
   postLogger,
+  seriesLogger,
 };
