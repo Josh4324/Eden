@@ -7,6 +7,9 @@
     "start": "node app.js",
     "dev": "nodemon app.js"
   },
+  "engines": {
+    "node": ">=14.20.1"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://josh4324@bitbucket.org/edennetwork/eden-backend.git"
