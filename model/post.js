@@ -12,6 +12,7 @@ const postSchema = new mongoose.Schema({
   },
   category: {
     type: String,
+    enum: ["Announcements", "Devotional", "Updates", "Music Playlist"],
   },
   date: {
     type: Date,

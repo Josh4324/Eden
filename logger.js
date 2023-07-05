@@ -89,6 +89,20 @@ const requestLogger = createLogger({
   ],
 });
 
+const interestLogger = createLogger({
+  levels: config.syslog.levels,
+  format: combine(
+    timestamp({
+      format: "YYYY-MM-DD HH:mm:ss",
+    }),
+    json()
+  ),
+  transports: [
+    new transports.Console({ level: "error" }),
+    new transports.File({ filename: "logs/interest.log", level: "info" }),
+  ],
+});
+
 module.exports = {
   userLogger,
   postLogger,
@@ -96,4 +110,5 @@ module.exports = {
   messageLogger,
   commitmentLogger,
   requestLogger,
+  interestLogger,
 };

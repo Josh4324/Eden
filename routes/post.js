@@ -27,7 +27,8 @@ const token = new Token();
  *                  format: binary
  *                category:
  *                  type: string
- *                  default: instagram
+ *                  enum: [Announcements, Devotional, Updates, Music Playlist]
+ *                  default: Announcements
  *                details:
  *                  type: string
  *                  default: Post Info
