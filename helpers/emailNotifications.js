@@ -1,4 +1,4 @@
-const mailer = require("../config/mailconfig");
+const mailer = require("../config/mailConfig");
 const template = require("./emailTemplate");
 
 class EmailNotifications {
