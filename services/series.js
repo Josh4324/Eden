@@ -9,35 +9,26 @@ module.exports = class SeriesService {
       .sort({ date: -1 });
   }
 
-  async findAllPost(max, offset, category) {
-    if (!category) {
-      return await Post.find({}).limit(max).skip(offset).sort({ date: -1 });
-    }
-    if (category) {
-      return await Post.find({
-        category: new RegExp(`${category}`, "i"),
-      })
-        .limit(max)
-        .skip(offset)
-        .sort({ date: -1 });
-    }
-  }
-
   async findSeriesWithId(id) {
     return await Series.findOne({ _id: id }).populate("messages");
   }
 
   async findAllSeriesWithName(max, offset, name) {
     if (!name) {
-      return await Series.find({}).limit(max).skip(offset).sort({ date: -1 });
+      return await Series.find({})
+        .limit(max)
+        .skip(offset)
+        .sort({ date: -1 })
+        .populate("messages");
     }
     if (name) {
-      return await Post.find({
+      return await Series.find({
         name: new RegExp(`${name}`, "i"),
       })
         .limit(max)
         .skip(offset)
-        .sort({ date: -1 });
+        .sort({ date: -1 })
+        .populate("messages");
     }
   }
 

@@ -86,6 +86,16 @@ exports.messageValidationRules = () => {
   ];
 };
 
+exports.seriesValidationRules = () => {
+  return [
+    body("name")
+      .notEmpty()
+      .trim()
+      .escape()
+      .withMessage("Please provide the name"),
+  ];
+};
+
 exports.roleValidationRules = () => {
   return [
     body("role")

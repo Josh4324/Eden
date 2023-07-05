@@ -2,6 +2,7 @@ const MessageService = require("../services/message");
 const SeriesService = require("../services/series");
 const cloudinary = require("cloudinary").v2;
 const { Response } = require("../helpers");
+const { messageLogger } = require("../logger");
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -13,9 +14,8 @@ const messageService = new MessageService();
 const seriesService = new SeriesService();
 
 exports.createMessage = async (req, res) => {
+  const { id } = req.payload;
   try {
-    // Todo
-    // test for case sensitivity
     const name = req.body.series;
     const checkSeries = seriesService.findSeriesWithName(name);
 
@@ -32,14 +32,10 @@ exports.createMessage = async (req, res) => {
       if (result) {
         let image = result.secure_url;
         req.body.image = image;
-        console.log(req.body);
         const message = await messageService.createMessage(req.body);
         const update = { messages: message._id };
         const payload = { name };
-        const updatedseries = await seriesService.updateSeriesAndPush(
-          payload,
-          update
-        );
+        await seriesService.updateSeriesAndPush(payload, update);
 
         const response = new Response(
           true,
@@ -47,17 +43,19 @@ exports.createMessage = async (req, res) => {
           "Message created successfully",
           message
         );
-        res.status(response.code).json(response);
+        messageLogger.info(`New message created - ${id}`);
+        return res.status(response.code).json(response);
       }
     });
   } catch (err) {
-    console.log(err);
     const response = new Response(false, 500, "Server Error", err);
+    messageLogger.error(`An error occured: ${err} - ${id}`);
     res.status(response.code).json(response);
   }
 };
 
 exports.updateMessage = async (req, res) => {
+  const { id } = req.payload;
   try {
     const id = req.params.id;
 
@@ -69,46 +67,63 @@ exports.updateMessage = async (req, res) => {
       "Message updated successfully",
       message
     );
-    res.status(response.code).json(response);
+    messageLogger.info(`Message updated - ${id}`);
+    return res.status(response.code).json(response);
   } catch (err) {
     const response = new Response(false, 500, "Server Error", err);
-    res.status(response.code).json(response);
+    messageLogger.error(`An error occured: ${err} - ${id}`);
+    return res.status(response.code).json(response);
   }
 };
 
 exports.getAllMessages = async (req, res) => {
+  const { id } = req.payload;
   try {
-    let limit = Number(req.query.limit);
-    let skip = Number(req.query.skip);
+    const page = Number(req.query.page) || 1;
+    const num = Number(req.query.limit) || 10;
+    let topic = req.query.topic;
+    let pastor = req.query.pastor;
 
-    if (!limit) {
-      limit = 10;
+    let offset;
+    let limit;
+
+    if (page === 1 || page === 0 || !page) {
+      offset = 0;
+      limit = num;
+    } else {
+      offset = (page - 1) * num;
+      limit = num;
     }
 
-    if (!skip) {
-      skip = 0;
-    }
-
-    const messages = await messageService.findAllMessages(limit, skip);
+    const messages = await messageService.findAllMessages(
+      limit,
+      offset,
+      topic,
+      pastor
+    );
 
     const response = new Response(true, 200, "Success", messages);
-    res.status(response.code).json(response);
+    messageLogger.info(`Get All messages - ${id}`);
+    return res.status(response.code).json(response);
   } catch (err) {
     const response = new Response(false, 500, "Server Error", err);
-    res.status(response.code).json(response);
+    messageLogger.error(`An error occured: ${err} - ${id}`);
+    return res.status(response.code).json(response);
   }
 };
 
 exports.getOneMessage = async (req, res) => {
+  const { id } = req.payload;
   try {
     let id = req.params.id;
 
     const message = await messageService.findMessageWithId(id);
-
     const response = new Response(true, 200, "Success", message);
-    res.status(response.code).json(response);
+    messageLogger.info(`Get One message - ${id}`);
+    return res.status(response.code).json(response);
   } catch (err) {
     const response = new Response(false, 500, "Server Error", err);
-    res.status(response.code).json(response);
+    messageLogger.error(`An error occured: ${err} - ${id}`);
+    return res.status(response.code).json(response);
   }
 };

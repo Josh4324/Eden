@@ -36,7 +36,7 @@ const token = new Token();
  *                  default: johndoe@mail.com
  *     responses:
  *      200:
- *        description: Verified
+ *        description: Success
  *      409:
  *        description: Conflict
  *      404:
@@ -57,7 +57,7 @@ router.post(
 
 /**
  * @openapi
- * '/api/v1/post/all':
+ * '/api/v1/post':
  *  get:
  *     parameters:
  *       - in: query
@@ -91,7 +91,7 @@ router.post(
  *        - bearerAuth: []
  *     description: Only an authenticated user can access this route
  */
-router.get("/all", token.verifyToken, postController.getAllPost);
+router.get("/", token.verifyToken, postController.getAllPost);
 
 /**
  * @openapi
@@ -128,7 +128,7 @@ router.get("/all", token.verifyToken, postController.getAllPost);
  *                default: url link
  *     responses:
  *      200:
- *        description: Verified
+ *        description: Success
  *      409:
  *        description: Conflict
  *      404:
