@@ -1,9 +1,7 @@
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const UserService = require("../services/user");
-const Token = require("../helpers/token");
 const session = require("express-session");
 const jwt = require("jsonwebtoken");
-const token = new Token();
 const userService = new UserService();
 
 module.exports = async function GoogleAuth(app, passport) {

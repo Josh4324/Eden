@@ -65,9 +65,7 @@ app.all("*", (req, res, next) => {
 mongoose
   .connect(DB, {
     useNewUrlParser: true,
-    useCreateIndex: true,
     useUnifiedTopology: true,
-    useFindAndModify: false,
   })
   .then(() => console.log("DATABASE connection successfull"))
   .catch((err) => {

@@ -1,5 +1,5 @@
 const User = require("../model/user");
-const Token = require("../helpers/token");
+const Token = require("../helpers/Token");
 const token = new Token();
 
 module.exports = class UserService {

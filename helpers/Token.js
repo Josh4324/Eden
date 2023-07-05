@@ -1,7 +1,7 @@
+require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET, JWT_EXPIRES_IN } = process.env;
 const Response = require("./response");
-require("dotenv").config();
 
 /** Token Helper Class */
 let expires = JWT_EXPIRES_IN;
