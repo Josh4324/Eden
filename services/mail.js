@@ -1,4 +1,4 @@
-const EmailNotifications = require("../helpers/EmailNotifications");
+const EmailNotifications = require("../helpers/emailNotifications");
 
 module.exports = class EmailService {
   async sendWelcomeEmail(email, code, name) {
